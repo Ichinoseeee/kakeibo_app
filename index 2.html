@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>家計管理アプリ</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+      background-color: #f5f5f5;
+      max-width: 600px;
+      margin: auto;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    input, button {
+      padding: 12px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+
+    button {
+      background-color: #0077cc;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #005fa3;
+    }
+
+    .status {
+      margin-top: 15px;
+      font-weight: bold;
+      font-size: 16px;
+      color: #333;
+    }
+
+    #historyList {
+      margin-top: 10px;
+      padding-left: 20px;
+    }
+
+    #historyList li {
+      margin-bottom: 6px;
+    }
+
+    @media screen and (max-width: 480px) {
+      input, button {
+        font-size: 14px;
+        padding: 10px;
+      }
+
+      .status {
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <h2>💰 家計管理アプリ</h2>
+
+  <div class="input-group">
+    <input type="number" id="salaryInput" placeholder="月の給料（円）" value="300000">
+    <input type="number" id="savingsInput" placeholder="目標貯金額（円）" value="50000">
+    <input type="text" id="categoryInput" placeholder="カテゴリ">
+    <input type="number" id="expenseInput" placeholder="金額">
+    <button onclick="addExpense()">追加</button>
+  </div>
+
+  <div class="status" id="salaryDisplay">月の給料：¥0</div>
+  <div class="status" id="savingsDisplay">目標貯金額：¥0</div>
+  <div class="status" id="budgetStatus">残り貯金可能額：¥0</div>
+  <div class="status" id="dailyUsableDisplay">1日あたり使える額：¥0</div>
+  <ul id="historyList"></ul>
+  <div class="status" id="totalDisplay">合計: ¥0</div>
+
+  <script>
+    let total = 0;
+
+    function addExpense() {
+      const salary = parseInt(document.getElementById("salaryInput").value);
+      const savings = parseInt(document.getElementById("savingsInput").value);
+      const category = document.getElementById("categoryInput").value;
+      const amount = parseInt(document.getElementById("expenseInput").value);
+
+      if (!category || isNaN(amount) || isNaN(salary) || isNaN(savings)) {
+        alert("すべての項目を正しく入力してください。");
+        return;
+      }
+
+      // 履歴追加
+      const li = document.createElement("li");
+      li.textContent = `${category}：¥${amount.toLocaleString()}`;
+      document.getElementById("historyList").appendChild(li);
+
+      // 合計更新
+      total += amount;
+      document.getElementById("totalDisplay").textContent = `合計: ¥${total.toLocaleString()}`;
+
+      // 給料・貯金目標表示
+      document.getElementById("salaryDisplay").textContent = `月の給料：¥${salary.toLocaleString()}`;
+      document.getElementById("savingsDisplay").textContent = `目標貯金額：¥${savings.toLocaleString()}`;
+
+      // 残り使える額
+      const remaining = salary - total;
+      document.getElementById("budgetStatus").textContent = `残り貯金可能額：¥${remaining.toLocaleString()}`;
+
+      // 1日あたり使える額の計算
+      const today = new Date();
+      const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+      const daysLeft = lastDay.getDate() - today.getDate();
+      const usable = remaining - savings;
+      const dailyUsable = usable > 0 && daysLeft > 0 ? Math.floor(usable / daysLeft) : 0;
+      document.getElementById("dailyUsableDisplay").textContent = `1日あたり使える額：¥${dailyUsable.toLocaleString()}（残り${daysLeft}日）`;
+
+      // 入力欄クリア
+      document.getElementById("categoryInput").value = "";
+      document.getElementById("expenseInput").value = "";
+    }
+  </script>
+
+</body>
+</html>
